@@ -3,6 +3,8 @@ from django.db import models
 
 class Inventory(models.Model):
 
+    def getOrders(self):
+        return self.orders.all()
 
 class OrderData(models.Model):
     ItemName = models.CharField(max_length=100)
