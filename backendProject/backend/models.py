@@ -9,6 +9,7 @@ class OrderData(models.Model):
     ExpiryDate = models.DateField()
     EntryDate = models.DateField()
     FoodCategory = models.CharField(max_length=50)
-
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, related_name='orders')
+    
     def __str__(self):
         return f"{self.ItemName}"
