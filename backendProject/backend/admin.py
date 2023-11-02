@@ -8,3 +8,6 @@ from .models import *
 #                     'ExpiryDate', 'EntryDate', 'FoodCategory')
 
 admin.site.register(OrderData)  # Register your model
+admin.site.register(Suggestions)  # Register your model
+admin.site.register(Predictions)  # Register your model
+admin.site.register(Supplier)  # Register your model

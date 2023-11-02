@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'backend.apps.BackendConfig',
-    'rest_framework'
+    'rest_framework',
+    'corsheaders',
+
 ]
 
 MIDDLEWARE = [
@@ -49,6 +51,25 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8081",  # Replace with your React Native app's URL
+    "http://127.0.0.1:8081",  # An example for a development setup
+    "http://127.0.0.1:8000",  # Your Django development server's URL
+    "http://10.91.55.126",
+    "http://192.168.0.103",
+    "http://10.0.2.2",
+    "http://10.0.2.16",
+]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'DELETE'
 ]
 
 ROOT_URLCONF = 'backendProject.urls'
