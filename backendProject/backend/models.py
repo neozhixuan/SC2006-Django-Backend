@@ -11,12 +11,13 @@ class OrderData(models.Model):
     Quantity = models.PositiveIntegerField()
     FlowRate = models.PositiveIntegerField()
     ExpiryDate = models.DateField()
-    EntryDate = models.DateField()
+    EntryDate = models.DateField(auto_now_add = True)
     FoodCategory = models.CharField(max_length=50)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, related_name='orders')
     
     def __str__(self):
         return f"{self.ItemName}"
+        
 class Suggestions(models.Model):
     SuggestionList = models.ManyToManyField('OrderData', related_name='suggested_lists')
     ItemName = models.CharField(max_length=64)
