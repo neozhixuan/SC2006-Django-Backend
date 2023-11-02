@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+class Inventory(models.Model):
+
 
 class OrderData(models.Model):
     ItemName = models.CharField(max_length=100)
