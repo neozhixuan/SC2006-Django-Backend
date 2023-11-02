@@ -17,3 +17,10 @@ class OrderData(models.Model):
     
     def __str__(self):
         return f"{self.ItemName}"
+class Suggestions(models.Model):
+    SuggestionList = models.ManyToManyField('OrderData', related_name='suggested_lists')
+    ItemName = models.CharField(max_length=64)
+
+class Predictions(models.Model):
+    PredictedStockLevel = models.ManyToManyField('OrderData', related_name='predicted_stock_levels')
+    ConfidenceScore = models.IntegerField()
