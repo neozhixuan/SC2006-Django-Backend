@@ -5,8 +5,11 @@ from . import views
 urlpatterns = [
     path("", views.index, name="index"),
     # Functions called by controller classes
-    path('fn/expiringFoods', views.filterForLowStock, name="filterForLowStock"),
+    path('fn/expiringFoods', views.filterForExpiringStock,
+         name="filterForLowStock"),
     path('fn/getItemNames', views.getItemNames, name="getItemNames"),
+
+    # POST Requests
     path('fn/createOrderData/', views.createOrderData, name='createOrderData'),
     path('fn/createSuggestion/', views.createSuggestion, name='createSuggestions'),
     path('fn/createPrediction/', views.createPrediction, name='createPredictions'),

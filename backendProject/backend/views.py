@@ -14,11 +14,11 @@ from datetime import datetime, timedelta
 
 @api_view(['GET'])
 def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    return HttpResponse("Hello, world. You're at the sc2006 backend.")
 
 
 @api_view(['GET'])
-def filterForLowStock(request):
+def filterForExpiringStock(request):
     # Perform filtering on the OrderData for low stock
     now = datetime.now()
     two_days_from_now = now + timedelta(days=2)
