@@ -24,7 +24,6 @@ def filterForExpiringStock(request):
     two_days_from_now = now + timedelta(days=2)
     filtered_data = OrderData.objects.filter(ExpiryDate__lte=two_days_from_now)
     serializer = OrderDataSerializer(filtered_data, many=True)
-
     return Response(serializer.data)
 
 
@@ -32,13 +31,11 @@ def filterForExpiringStock(request):
 def getItemNames(request):
     # Get a list of item names
     itemNames = OrderData.objects.values_list('ItemName', flat=True)
-    serializer = ItemNameSerializer(data={'item_names': itemNames})
+    formattedNames = [{"label": itemName, "value": itemName}
+                      for itemName in itemNames]
+    serializer = ItemNameSerializer(formattedNames, many=True)
 
-    # Only if a 'data' keyword is passed
-    if serializer.is_valid():
-        return Response(serializer.data)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.data)
 
 
 @api_view(['POST'])

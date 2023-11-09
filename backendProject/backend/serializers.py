@@ -27,4 +27,9 @@ class SupplierSerializer(serializers.ModelSerializer):
 
 
 class ItemNameSerializer(serializers.Serializer):
-    item_names = serializers.ListField(child=serializers.CharField())
+    label = serializers.CharField()
+    value = serializers.CharField()
+
+# To serialize a list
+# class ItemNameSerializer(serializers.Serializer):
+#     item_names = serializers.ListField(child=serializers.CharField())
