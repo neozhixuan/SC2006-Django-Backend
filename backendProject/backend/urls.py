@@ -1,5 +1,6 @@
 from django.urls import path
-
+from django.contrib import admin
+from django.urls import include, path
 from . import views
 
 urlpatterns = [
@@ -28,4 +29,9 @@ urlpatterns = [
     path('api/predictions/<int:pk>/',
          views.PredictionsDetail.as_view(), name='predictions-detail'),
     path('api/supplier/', views.SupplierList.as_view(), name='supplier-list'),
+     
+     path('index/',views.index,name='test'),
+     
+     # Firebase Connection
+     path('view_firestore_data/', views.view_firestore_data, name='view_firestore_data')
 ]

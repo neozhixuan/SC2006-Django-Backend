@@ -1,0 +1,27 @@
+<!-- backendProject/templates/backend/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firestore Data</title>
+</head>
+<body>
+    <h1>Firestore Data</h1>
+    <p>Collection: {{ Inventory }}</p>
+    <p>Document ID: {{ Ingredient_Bun }}</p>
+    <p>Map Field Name: {{ Inventory_field }}</p>
+
+    {% if map_field %}
+        <p>Map Field Contents:</p>
+        <ul>
+            {% for key, value in map_field.items %}
+                <li><strong>{{ key }}:</strong> {{ value }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No data found for the specified map field.</p>
+    {% endif %}
+</body>
+</html>
