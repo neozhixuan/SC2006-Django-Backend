@@ -94,24 +94,24 @@ class OrderDataDetail(generics.RetrieveUpdateDestroyAPIView):
 
 class SuggestionsList(generics.ListCreateAPIView):
     queryset = Suggestions.objects.all()
-    serializer_class = OrderDataSerializer
+    serializer_class = SuggestionsSerializer
 
 
 class SuggestionsDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Suggestions.objects.all()
-    serializer_class = OrderDataSerializer
+    serializer_class = SuggestionsSerializer
 
 
 class PredictionsList(generics.ListCreateAPIView):
     queryset = Predictions.objects.all()
-    serializer_class = OrderDataSerializer
+    serializer_class = PredictionsSerializer
 
 
 class PredictionsDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Predictions.objects.all()
-    serializer_class = OrderDataSerializer
+    serializer_class = PredictionsSerializer
 
 
 class SupplierList(generics.ListCreateAPIView):
     queryset = Supplier.objects.all()
-    serializer_class = OrderDataSerializer
+    serializer_class = SupplierSerializer
