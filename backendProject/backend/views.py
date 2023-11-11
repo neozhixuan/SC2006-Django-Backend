@@ -77,6 +77,17 @@ def createSupplier(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+def createMarketplace(request):
+    serializer = MarketplaceSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 ##########################
 # REST API List Display
 #########################
@@ -115,3 +126,7 @@ class PredictionsDetail(generics.RetrieveUpdateDestroyAPIView):
 class SupplierList(generics.ListCreateAPIView):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
+
+class Marketplace(generics.ListCreateAPIView):
+    queryset = Marketplace.objects.all()
+    serializer_class = MarketplaceSerializer

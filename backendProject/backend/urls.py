@@ -23,9 +23,8 @@ urlpatterns = [
          name='suggestions-list'),
     path('api/suggestions/<int:pk>/',
          views.SuggestionsDetail.as_view(), name='suggestions-detail'),
-    path('api/predictions/', views.PredictionsList.as_view(),
-         name='predictions-list'),
-    path('api/predictions/<int:pk>/',
-         views.PredictionsDetail.as_view(), name='predictions-detail'),
+    path('api/predictions/', views.PredictionsList.as_view(),name='predictions-list'),
+    path('api/predictions/<int:pk>/',views.PredictionsDetail.as_view(), name='predictions-detail'),
     path('api/supplier/', views.SupplierList.as_view(), name='supplier-list'),
+    path('api/marketplace/', views.Marketplace.as_view(),name = 'marketplace')
 ]

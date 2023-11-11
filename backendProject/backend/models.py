@@ -22,9 +22,9 @@ class OrderData(models.Model):
 
 
 class Suggestions(models.Model):
-    SuggestionList = models.ManyToManyField(
-        'OrderData', related_name='suggested_lists')
+    ID = models.AutoField(primary_key=True)
     ItemName = models.CharField(max_length=64)
+    Ingredients = models.JSONField()
 
 
 class Predictions(models.Model):
@@ -39,3 +39,12 @@ class Supplier(models.Model):
 
     def __str__(self):
         return self.CompanyName
+
+class Marketplace(models.Model):
+    ItemName = models.CharField(max_length=100)
+    Price = models.PositiveIntegerField()
+    Description = models.TextField()
+
+    def __str__(self):
+        return self.ItemName
+    

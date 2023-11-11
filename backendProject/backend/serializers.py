@@ -26,9 +26,15 @@ class SupplierSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class MarketplaceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Marketplace
+        fields = '__all__'
+
 class ItemNameSerializer(serializers.Serializer):
     label = serializers.CharField()
     value = serializers.CharField()
+
 
 # To serialize a list
 # class ItemNameSerializer(serializers.Serializer):
