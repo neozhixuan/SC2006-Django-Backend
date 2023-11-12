@@ -7,23 +7,30 @@ class OrderDataSerializer(serializers.ModelSerializer):
         model = OrderData
         fields = '__all__'
 
-
-class SuggestionsSerializer(serializers.ModelSerializer):
+class InventorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Suggestions
+        model = Inventory
         fields = '__all__'
-
+        
+class MarketplaceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Marketplace
+        fields = '__all__'       
 
 class PredictionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Predictions
         fields = '__all__'
-
-
-class SupplierSerializer(serializers.ModelSerializer):
+        
+class SuggestionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Supplier
+        model = Suggestions
         fields = '__all__'
+
+# class SuppliersSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Suppliers
+#         fields = '__all__'
 
 
 class ItemNameSerializer(serializers.Serializer):

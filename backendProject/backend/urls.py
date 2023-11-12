@@ -14,9 +14,11 @@ urlpatterns = [
     path('fn/createOrderData/', views.createOrderData, name='createOrderData'),
     path('fn/createSuggestion/', views.createSuggestion, name='createSuggestions'),
     path('fn/createPrediction/', views.createPrediction, name='createPredictions'),
-    path('fn/createSupplier/', views.createSupplier, name='createSupplier'),
+    #path('fn/createSupplier/', views.createSupplier, name='createSupplier'),
 
     # REST API URLS
+    path('api/inventory/', views.InventoryList.as_view(), name='inventory-list'),
+    path('api/marketplace/', views.MarketplaceList.as_view(), name='marketplace-list'),
     path('api/orderdata/', views.OrderDataList.as_view(), name='orderdata-list'),
     path('api/orderdata/<int:pk>/',
          views.OrderDataDetail.as_view(), name='orderdata-detail'),
@@ -28,10 +30,10 @@ urlpatterns = [
          name='predictions-list'),
     path('api/predictions/<int:pk>/',
          views.PredictionsDetail.as_view(), name='predictions-detail'),
-    path('api/supplier/', views.SupplierList.as_view(), name='supplier-list'),
+    #path('api/supplier/', views.SupplierList.as_view(), name='supplier-list'),
      
      path('index/',views.index,name='test'),
      
      # Firebase Connection
-     path('view_firestore_data/', views.view_firestore_data, name='view_firestore_data')
+     # path('view_firestore_data/', views.view_firestore_data, name='view_firestore_data')
 ]

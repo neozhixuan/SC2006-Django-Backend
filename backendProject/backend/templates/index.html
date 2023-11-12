@@ -1,27 +1,28 @@
-<!-- backendProject/templates/backend/index.html -->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firestore Data</title>
-</head>
-<body>
-    <h1>Firestore Data</h1>
-    <p>Collection: {{ Inventory }}</p>
-    <p>Document ID: {{ Ingredient_Bun }}</p>
-    <p>Map Field Name: {{ Inventory_field }}</p>
-
-    {% if map_field %}
-        <p>Map Field Contents:</p>
+{% if mapped_data %}
+    {% for document, model_instance in mapped_data.items %}
+        <h2>{{ document }}</h2>
         <ul>
-            {% for key, value in map_field.items %}
-                <li><strong>{{ key }}:</strong> {{ value }}</li>
+            {% for field, value in model_instance.__dict__.items %}
+                <li>{{ field }}: {{ value }}</li>
             {% endfor %}
         </ul>
-    {% else %}
-        <p>No data found for the specified map field.</p>
-    {% endif %}
-</body>
-</html>
+    {% endfor %}
+{% else %}
+    <p>No data available</p>
+{% endif %}
+
+
+
+
+{% comment %} {% if data %}
+    {% for document, document_data in data.items %}
+        <h2>{{ document }}</h2>
+        <ul>
+            {% for key, value in document_data.items %}
+                <li>{{ key }}: {{ value }}</li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+{% else %}
+    <p>No data available</p>
+{% endif %} {% endcomment %}
