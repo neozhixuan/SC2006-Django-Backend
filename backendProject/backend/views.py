@@ -11,6 +11,20 @@ from .serializers import *
 
 from datetime import datetime, timedelta
 
+def identify_low_stock_items(threshold=10):
+    """
+    Identify low stock items based on the specified threshold.
+    """
+    low_stock_items = OrderData.objects.filter(Quantity__lt=threshold)
+    return low_stock_items
+
+@api_view(['GET'])
+def LowStockItemsAPIView(self, request, format=None):
+    low_stock_items = identify_low_stock_items()
+    serializer = OrderDataSerializer(low_stock_items, many=True)
+    return Response(serializer.data)
+
+
 
 @api_view(['GET'])
 def index(request):
