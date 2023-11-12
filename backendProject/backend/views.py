@@ -51,7 +51,17 @@ def getItemNames(request):
 
     return Response(serializer.data)
 
-
+@api_view(['GET'])
+def Suggestions(request):
+    # get a list of suggestions based on weather api
+    x = requests.get('https://api.data.gov.sg/v1/environment/24-hour-weather-forecast')
+    weather_forecast = (x.json())["items"][0]["general"]["forecast"]
+    if weather_forecast == "Thundery Showers"
+        return "mushroom soup"
+    else:
+        return "chicken burger"
+        
+    
 @api_view(['POST'])
 def createOrderData(request):
     serializer = OrderDataSerializer(data=request.data)
