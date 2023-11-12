@@ -144,3 +144,10 @@ class SupplierList(generics.ListCreateAPIView):
 class Marketplace(generics.ListCreateAPIView):
     queryset = Marketplace.objects.all()
     serializer_class = MarketplaceSerializer
+
+class LowStockItemsAPIView(generics.ListAPIView):
+    queryset = OrderData.objects.all()
+    serializer_class = OrderDataSerializer
+
+    def get_queryset(self):
+        return identify_low_stock_items()
