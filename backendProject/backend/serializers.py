@@ -35,6 +35,9 @@ class ItemNameSerializer(serializers.Serializer):
     label = serializers.CharField()
     value = serializers.CharField()
 
+class LowStockSerializer(serializers.Serializer):
+    ItemName = serializers.CharField()
+    Quantity = serializers.IntegerField()
 
 # To serialize a list
 # class ItemNameSerializer(serializers.Serializer):
