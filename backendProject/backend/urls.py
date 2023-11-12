@@ -27,4 +27,6 @@ urlpatterns = [
     path('api/predictions/<int:pk>/',views.PredictionsDetail.as_view(), name='predictions-detail'),
     path('api/supplier/', views.SupplierList.as_view(), name='supplier-list'),
     path('api/marketplace/', views.Marketplace.as_view(),name = 'marketplace')
+    path('api/low-stock-items/', views.LowStockItemsAPIView.as_view(), name='low-stock-items-api'),
+
 ]
