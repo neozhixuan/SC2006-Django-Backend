@@ -29,4 +29,6 @@ urlpatterns = [
     path('api/marketplace/', views.Marketplace.as_view(),name = 'marketplace')
     path('api/low-stock-items/', views.LowStockItemsAPIView.as_view(), name='low-stock-items-api'),
 
+    # DATA GOV API
+    path('api/suggestions/', views.Suggestions, name = 'menuSuggestion'),
 ]
