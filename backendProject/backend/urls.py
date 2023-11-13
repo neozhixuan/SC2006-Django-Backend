@@ -21,6 +21,7 @@ urlpatterns = [
     path('fn/createSuggestion/', views.createSuggestion, name='createSuggestions'),
     path('fn/createPrediction/', views.createPrediction, name='createPredictions'),
     path('fn/createSupplier/', views.createSupplier, name='createSupplier'),
+    path('fn/suggestedMenu/', views.suggest_menu_items, name='suggestedMenu'),
 
     ##########################
     # REST API URLS

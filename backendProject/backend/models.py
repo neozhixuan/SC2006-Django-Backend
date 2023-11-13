@@ -20,11 +20,13 @@ class Marketplace(models.Model):
 
 class Suppliers(models.Model):
     item_name = models.CharField(max_length=100, default='default_value')
-    flow_rate = models.PositiveIntegerField(default=0)
+    item_sold = models.CharField(max_length=100, default='default_value')
+    phone_no = models.PositiveIntegerField(default=0)
 
 
 class Predictions(models.Model):
-    items_data = models.JSONField(default=dict)
+    item_name = models.CharField(max_length=100, default='default_value')
+    quantity = models.PositiveIntegerField(default=0)
 
 
 class Suggestions(models.Model):
