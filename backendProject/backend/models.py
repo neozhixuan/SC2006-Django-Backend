@@ -4,20 +4,6 @@ from django.db.models import JSONField
 from django.utils import timezone
 
 
-class OrderData(models.Model):
-    ItemName = models.CharField(max_length=100, default='default_value')
-    Quantity = models.PositiveIntegerField(default=0)
-    FlowRate = models.PositiveIntegerField(default=0)
-    ExpiryDate = models.DateField(default=timezone.now)
-    EntryDate = models.DateField(auto_now_add=True)
-    # FoodCategory = models.CharField(max_length=50)
-    # inventory = models.ForeignKey(
-    # Inventory, on_delete=models.CASCADE, related_name='orders', null=True)
-
-    def __str__(self):
-        return f"{self.ItemName}"
-
-
 class Inventory(models.Model):
     item_name = models.CharField(max_length=100, default='default_value')
     flow_rate = models.PositiveIntegerField(default=0)
