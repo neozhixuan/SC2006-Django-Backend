@@ -4,25 +4,30 @@ from django.urls import include, path
 from . import views
 
 urlpatterns = [
+    # Default Path
     path("", views.index, name="index"),
+
+    ##########################
     # Functions called by controller classes
+    ##########################
     path('fn/expiringFoods', views.filterForExpiringStock,
          name="filterForLowStock"),
     path('fn/getItemNames', views.getItemNames, name="getItemNames"),
 
+    ##########################
     # POST Requests
-    path('fn/createOrderData/', views.createOrderData, name='createOrderData'),
+    ##########################
+    path('fn/createInventory/', views.createInventory, name='createInventory'),
     path('fn/createSuggestion/', views.createSuggestion, name='createSuggestions'),
     path('fn/createPrediction/', views.createPrediction, name='createPredictions'),
-    # path('fn/createSupplier/', views.createSupplier, name='createSupplier'),
+    path('fn/createSupplier/', views.createSupplier, name='createSupplier'),
 
+    ##########################
     # REST API URLS
+    ##########################
     path('api/inventory/', views.InventoryList.as_view(), name='inventory-list'),
     path('api/marketplace/', views.MarketplaceList.as_view(),
          name='marketplace-list'),
-    path('api/orderdata/', views.OrderDataList.as_view(), name='orderdata-list'),
-    path('api/orderdata/<int:pk>/',
-         views.OrderDataDetail.as_view(), name='orderdata-detail'),
     path('api/suggestions/', views.SuggestionsList.as_view(),
          name='suggestions-list'),
     path('api/suggestions/<int:pk>/',
@@ -32,9 +37,4 @@ urlpatterns = [
     path('api/predictions/<int:pk>/',
          views.PredictionsDetail.as_view(), name='predictions-detail'),
     path('api/supplier/', views.SupplierList.as_view(), name='supplier-list'),
-
-    path('index/', views.index, name='test'),
-
-    # Firebase Connection
-    # path('view_firestore_data/', views.view_firestore_data, name='view_firestore_data')
 ]

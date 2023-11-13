@@ -1,129 +1,69 @@
-from firebase_admin import credentials, initialize_app
 from datetime import datetime, timedelta
 from .serializers import *
 from .models import *
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import generics
-from firebase_admin import credentials, firestore
+
 import firebase_admin
-from django.db.models import DateTimeField
+from firebase_admin import credentials, firestore, initialize_app
+
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render
+
 import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/..')
 
-
-# Firebase Connection
-# from google.cloud import firestore
-
-# Determine the path to the credentials file
+##########################
+# Firebase Connection to Django REST API
+##########################
 script_path = os.path.dirname(os.path.abspath(__file__))
 credentials_path = os.path.join(script_path, "credentials.json")
-
-# Environment Variable so that Django can detect your account details
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
-
-# Initialize Firestore client
 db = firestore.Client()
-
-# Initialize Firebase app (ensure it's done only once)
 try:
     firebase_admin
 except NameError:
     cred = credentials.Certificate(credentials_path)
     firebase_admin = initialize_app(cred)
+##########################
+
+##########################
+# Update our Models.py upon runserver
+##########################
 
 
 def update_model_from_firestore(model_class, document_name):
-    # Initialize Firestore client
     db = firestore.Client()
-
-    # Specify the document you want to retrieve under the "Database" collection
     doc_ref = db.collection('Database').document(document_name)
     document_data = doc_ref.get().to_dict()
-
-    # debug print
-    print(document_data)
 
     # Use transaction to ensure atomicity of updates
     with transaction.atomic():
         # Iterate through each field in the document and update the model
         for item_name, item_data in document_data.items():
-            # debug print
-            print(f"Processing item: {item_name}")
             # Check if the item already exists in the model
             model_item, created = model_class.objects.get_or_create(
                 item_name=item_name)
 
             # Update the fields based on Firestore data
-            # Adjust this part based on your actual field names in the model
             for field_name, field_value in item_data.items():
                 print(f"Field: {field_name}, Value: {field_value}")
                 setattr(model_item, field_name.lower(), field_value)
 
             # Save the changes
             model_item.save()
+##########################
 
 
-# def map_firestore_data_to_models(data):
-#     models_mapping = {
-#         'Inventory': Inventory,
-#         'Marketplace': Marketplace,
-#         'Prediction': Predictions,
-#         'Suggestions': Suggestions,
-#         'Suppliers': Supplier,
-#     }
-
-#     mapped_data = {}
-
-#     for document, model_class in models_mapping.items():
-#         document_data = data.get(document, {})
-
-# # Iterate through each field in the document
-#         for item_name, item_data in document_data.items():
-#             # Create an instance of the model for each item
-#             model_instance = model_class.objects.create(
-#                 **item_data  # Use all other fields from the Firestore data
-#             )
-
-#             # Save the created instance in the mapped data
-#             mapped_data.setdefault(document, []).append(model_instance)
-
-#     return mapped_data
-
-# def view_firestore_data(request):
-
-
-#     # Specify the documents you want to retrieve under the "Database" collection
-#     documents = ['Inventory', 'Marketplace', 'Prediction', 'Suggestions', 'Suppliers']
-
-#     # Query Firestore for each document
-#     data = {}
-#     for document in documents:
-#         doc_ref = db.collection('Database').document(document)
-#         document_data = doc_ref.get()
-
-#         # Extract the data from the document
-#         data[document] = document_data.to_dict() if document_data.exists else None
-
-#     # Map Firestore data to Django models
-#     mapped_data = map_firestore_data_to_models(data)
-
-#     inventory_instance = Inventory.objects.all()
-#     # Pass the mapped data to the template
-#     context = {
-#         'mapped_data': mapped_data,
-#         'inventory_instance': Inventory.objects.all(),  # Example for accessing Inventory
-#     }
-
-#     return render(request, '../templates/index.html', context)
-
-
+##########################
+# API Endpoints
+##########################
 @api_view(['GET'])
 def index(request):
     return HttpResponse("Hello, world. You're at the sc2006 backend.")
@@ -131,18 +71,18 @@ def index(request):
 
 @api_view(['GET'])
 def filterForExpiringStock(request):
-    # Perform filtering on the OrderData for low stock
+    # Perform filtering on the Inventory for low stock
     now = datetime.now()
     two_days_from_now = now + timedelta(days=2)
-    filtered_data = OrderData.objects.filter(ExpiryDate__lte=two_days_from_now)
-    serializer = OrderDataSerializer(filtered_data, many=True)
+    filtered_data = Inventory.objects.filter(ExpiryDate__lte=two_days_from_now)
+    serializer = InventorySerializer(filtered_data, many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 def getItemNames(request):
     # Get a list of item names
-    itemNames = OrderData.objects.values_list('ItemName', flat=True)
+    itemNames = Inventory.objects.values_list('ItemName', flat=True)
     formattedNames = [{"label": itemName, "value": itemName}
                       for itemName in itemNames]
     serializer = ItemNameSerializer(formattedNames, many=True)
@@ -151,8 +91,8 @@ def getItemNames(request):
 
 
 @api_view(['POST'])
-def createOrderData(request):
-    serializer = OrderDataSerializer(data=request.data)
+def createInventory(request):
+    serializer = InventorySerializer(data=request.data)
 
     if serializer.is_valid():
         serializer.save()
@@ -211,6 +151,7 @@ class MarketplaceList(generics.ListCreateAPIView):
     serializer_class = MarketplaceSerializer
 
     def get(self, request, *args, **kwargs):
+        # Call the function to update the 'Marketplace' model
         update_model_from_firestore(Marketplace, "Marketplace")
 
         # Continue with the original get method logic if needed
@@ -222,20 +163,11 @@ class SupplierList(generics.ListCreateAPIView):
     serializer_class = SuppliersSerializer
 
     def get(self, request, *args, **kwargs):
+        # Call the function to update the 'Suppliers' model
         update_model_from_firestore(Suppliers, "Suppliers")
 
         # Continue with the original get method logic if needed
         return super().get(request, *args, **kwargs)
-
-
-class OrderDataList(generics.ListCreateAPIView):
-    queryset = OrderData.objects.all()
-    serializer_class = OrderDataSerializer
-
-
-class OrderDataDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = OrderData.objects.all()
-    serializer_class = OrderDataSerializer
 
 
 class SuggestionsList(generics.ListCreateAPIView):
@@ -256,3 +188,5 @@ class PredictionsList(generics.ListCreateAPIView):
 class PredictionsDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Predictions.objects.all()
     serializer_class = PredictionsSerializer
+
+##########################

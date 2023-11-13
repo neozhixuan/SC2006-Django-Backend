@@ -2,12 +2,6 @@ from rest_framework import serializers
 from .models import *
 
 
-class OrderDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderData
-        fields = '__all__'
-
-
 class InventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Inventory
