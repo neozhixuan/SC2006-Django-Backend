@@ -1,7 +1,4 @@
 from django.apps import AppConfig
-# import os
-# import sys
-# from firebase_admin import credentials, firestore, initialize_app
 
 
 class BackendConfig(AppConfig):
@@ -21,5 +18,3 @@ class BackendConfig(AppConfig):
         update_model_from_firestore(Marketplace, "Marketplace")
         update_model_from_firestore(Suppliers, "Suppliers")
         update_model_from_firestore(Predictions, "Prediction")
-        
-        

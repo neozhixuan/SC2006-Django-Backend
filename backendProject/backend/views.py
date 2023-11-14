@@ -37,7 +37,6 @@ except NameError:
 # Initialize Firestore client
 db = firestore.Client()
 
-
 def update_model_from_firestore(model_class, document_name):
     db = firestore.Client()
     doc_ref = db.collection('Database').document(document_name)
@@ -46,10 +45,14 @@ def update_model_from_firestore(model_class, document_name):
     # Use transaction to ensure atomicity of updates
     with transaction.atomic():
         # Iterate through each field in the document and create a new model entry
-        for item_name, item_data in document_data.items():
+        for item_id_str, item_data in document_data.items():
+            # Convert item_id to an integer
+            item_id = int(item_id_str)
 
             # Create a new entry for each item_id
-            model_instance = model_class.objects.create(item_name=item_name, **item_data)
+            item_data['item_id'] = item_id
+            model_instance = model_class(**item_data)
+            model_instance.save()
 
 
 ##########################
@@ -198,71 +201,71 @@ def getItemNames(request):
     return Response(serializer.data)
 
 
-@api_view(['POST'])
-def createInventory(request):
-    serializer = InventorySerializer(data=request.data)
+# @api_view(['POST'])
+# def createInventory(request):
+#     serializer = InventorySerializer(data=request.data)
 
-    if serializer.is_valid():
-        # Save the data to the Django model
-        instance = serializer.save()
+#     if serializer.is_valid():
+#         # Save the data to the Django model
+#         instance = serializer.save()
 
-        # Convert the serializer data to a dictionary
-        data_dict = serializer.data
+#         # Convert the serializer data to a dictionary
+#         data_dict = serializer.data
 
-        # Initialize Firestore client
-        db = firestore.Client()
+#         # Initialize Firestore client
+#         db = firestore.Client()
 
-        # Get a sanitized document ID (replace spaces with underscores)
-        document_id = instance.item_name.replace(" ", "_")
+#         # Get a sanitized document ID (replace spaces with underscores)
+#         document_id = instance.item_name.replace(" ", "_")
 
-        # Get the document reference in Firestore
-        doc_ref = db.collection('Database').document('Inventory')
+#         # Get the document reference in Firestore
+#         doc_ref = db.collection('Database').document('Inventory')
 
-        # Update the data directly under the "Inventory" document
-        doc_ref.update({
-            document_id: {
-                "flow_rate": data_dict["flow_rate"],
-                "expiry_date": data_dict["expiry_date"],
-                "quantity": data_dict["quantity"],
-                "entry_date": data_dict["entry_date"]
-            }
-        })
+#         # Update the data directly under the "Inventory" document
+#         doc_ref.update({
+#             document_id: {
+#                 "flow_rate": data_dict["flow_rate"],
+#                 "expiry_date": data_dict["expiry_date"],
+#                 "quantity": data_dict["quantity"],
+#                 "entry_date": data_dict["entry_date"]
+#             }
+#         })
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def createMarketplace(request):
-    serializer = MarketplaceSerializer(data=request.data)
+# @api_view(['POST'])
+# def createMarketplace(request):
+#     serializer = MarketplaceSerializer(data=request.data)
 
-    if serializer.is_valid():
-        # Save the data to the Django model
-        instance = serializer.save()
+#     if serializer.is_valid():
+#         # Save the data to the Django model
+#         instance = serializer.save()
 
-        # Convert the serializer data to a dictionary
-        data_dict = serializer.data
+#         # Convert the serializer data to a dictionary
+#         data_dict = serializer.data
 
-        # Initialize Firestore client
-        db = firestore.Client()
+#         # Initialize Firestore client
+#         db = firestore.Client()
 
-        # Get a sanitized document ID (replace spaces with underscores)
-        document_id = instance.item_name.replace(" ", "_")
+#         # Get a sanitized document ID (replace spaces with underscores)
+#         document_id = instance.item_name.replace(" ", "_")
 
-        # Get the document reference in Firestore
-        doc_ref = db.collection('Database').document('Marketplace')
+#         # Get the document reference in Firestore
+#         doc_ref = db.collection('Database').document('Marketplace')
 
-        # Update the data directly under the "Marketplace" document
-        doc_ref.update({
-            document_id: {
-                "expiry_date": data_dict["expiry_date"],
-                "price": data_dict["price"],
-            }
-        })
+#         # Update the data directly under the "Marketplace" document
+#         doc_ref.update({
+#             document_id: {
+#                 "expiry_date": data_dict["expiry_date"],
+#                 "price": data_dict["price"],
+#             }
+#         })
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def createPrediction(request):
