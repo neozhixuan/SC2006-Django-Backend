@@ -1,5 +1,5 @@
-import firebase_admin 
-from firebase_admin import firestore,credentials,initialize_app
+import firebase_admin
+from firebase_admin import firestore, credentials, initialize_app
 
 import os
 import sys
@@ -27,7 +27,7 @@ script_path = os.path.dirname(os.path.abspath(__file__))
 credentials_path = os.path.join(script_path, "credentials.json")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
 
- # Initialize Firebase Admin SDK
+# Initialize Firebase Admin SDK
 try:
     firebase_admin
 except NameError:
@@ -37,6 +37,7 @@ except NameError:
 # Initialize Firestore client
 db = firestore.Client()
 
+
 def update_model_from_firestore(model_class, document_name):
     db = firestore.Client()
     doc_ref = db.collection('Database').document(document_name)
@@ -44,23 +45,17 @@ def update_model_from_firestore(model_class, document_name):
 
     # Use transaction to ensure atomicity of updates
     with transaction.atomic():
-        # Iterate through each field in the document and update the model
+        # Iterate through each field in the document and create a new model entry
         for item_name, item_data in document_data.items():
-            # Check if the item already exists in the model
-            model_item, created = model_class.objects.get_or_create(
-                item_name=item_name)
+            # Create a new entry for each item_name
+            model_instance = model_class.objects.create(
+                item_name=item_name, **item_data)
 
-            # Update the fields based on Firestore data
-            for field_name, field_value in item_data.items():
-                print(f"Field: {field_name}, Value: {field_value}")
-                setattr(model_item, field_name.lower(), field_value)
-
-            # Save the changes
-            model_item.save()
 
 ##########################
 # Suggestions Logic
 ##########################
+
 
 def get_weather_data():
     # Use the data.gov.sg weather API endpoint or your specific API endpoint
@@ -180,6 +175,7 @@ def suggest_menu_items(request):
 def index(request):
     return HttpResponse("Hello, world. You're at the sc2006 backend.")
 
+
 @api_view(['GET'])
 def filterForExpiringStock(request):
     # Perform filtering on the Inventory for low stock
@@ -189,12 +185,14 @@ def filterForExpiringStock(request):
     serializer = InventorySerializer(filtered_data, many=True)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def getItemNames(request):
     # Get a list of item names
-    itemNames = Inventory.objects.values_list('ItemName', flat=True)
+    unique_names_set = set()
+    itemNames = Inventory.objects.values_list('item_name', flat=True)
     formattedNames = [{"label": itemName, "value": itemName}
-                      for itemName in itemNames]
+                      for itemName in itemNames if itemName not in unique_names_set and (unique_names_set.add(itemName) or True)]
     serializer = ItemNameSerializer(formattedNames, many=True)
 
     return Response(serializer.data)
@@ -247,14 +245,16 @@ def createMarketplace(request):
         data_dict = serializer.data
 
         # Get the document reference in Firestore
-        doc_ref = db.collection('Database').document('Marketplace').collection(data_dict['item_name'])
-        
+        doc_ref = db.collection('Database').document(
+            'Marketplace').collection(data_dict['item_name'])
+
         # Update or create the document in Firestore
         doc_ref.set(data_dict)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def createPrediction(request):
@@ -295,7 +295,7 @@ class InventoryList(generics.ListCreateAPIView):
 class MarketplaceList(generics.ListCreateAPIView):
     queryset = Marketplace.objects.all()
     serializer_class = MarketplaceSerializer
-    #update_model_from_firestore(Marketplace, "Marketplace")
+    # update_model_from_firestore(Marketplace, "Marketplace")
     # def get(self, request, *args, **kwargs):
     #     # Call the function to update the 'Marketplace' model
     #     update_model_from_firestore(Marketplace, "Marketplace")
@@ -314,6 +314,7 @@ class SupplierList(generics.ListCreateAPIView):
 
     #     # Continue with the original get method logic if needed
     #     return super().get(request, *args, **kwargs)
+
 
 class PredictionsList(generics.ListCreateAPIView):
     queryset = Predictions.objects.all()
