@@ -47,7 +47,8 @@ def update_model_from_firestore(model_class, document_name):
     with transaction.atomic():
         # Iterate through each field in the document and create a new model entry
         for item_name, item_data in document_data.items():
-            # Create a new entry for each item_name
+
+            # Create a new entry for each item_id
             model_instance = model_class.objects.create(item_name=item_name, **item_data)
 
 
@@ -230,7 +231,6 @@ def createInventory(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(['POST'])
 def createMarketplace(request):
