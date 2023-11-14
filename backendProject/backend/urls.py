@@ -27,10 +27,8 @@ urlpatterns = [
     # REST API URLS
     ##########################
     path('api/inventory/', views.InventoryList.as_view(), name='inventory-list'),
-    path('api/marketplace/', views.MarketplaceList.as_view(),
-         name='marketplace-list'),
-    path('api/predictions/', views.PredictionsList.as_view(),
-         name='predictions-list'),
+    path('api/marketplace/', views.MarketplaceList.as_view(), name='marketplace-list'),
+    path('api/predictions/', views.PredictionsList.as_view(), name='predictions-list'),
     path('api/predictions/<int:pk>/',
          views.PredictionsDetail.as_view(), name='predictions-detail'),
     path('api/supplier/', views.SupplierList.as_view(), name='supplier-list'),

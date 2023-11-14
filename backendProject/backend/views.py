@@ -48,8 +48,7 @@ def update_model_from_firestore(model_class, document_name):
         # Iterate through each field in the document and create a new model entry
         for item_name, item_data in document_data.items():
             # Create a new entry for each item_name
-            model_instance = model_class.objects.create(
-                item_name=item_name, **item_data)
+            model_instance = model_class.objects.create(item_name=item_name, **item_data)
 
 
 ##########################
@@ -239,22 +238,31 @@ def createMarketplace(request):
 
     if serializer.is_valid():
         # Save the data to the Django model
-        serializer.save()
+        instance = serializer.save()
 
         # Convert the serializer data to a dictionary
         data_dict = serializer.data
 
-        # Get the document reference in Firestore
-        doc_ref = db.collection('Database').document(
-            'Marketplace').collection(data_dict['item_name'])
+        # Initialize Firestore client
+        db = firestore.Client()
 
-        # Update or create the document in Firestore
-        doc_ref.set(data_dict)
+        # Get a sanitized document ID (replace spaces with underscores)
+        document_id = instance.item_name.replace(" ", "_")
+
+        # Get the document reference in Firestore
+        doc_ref = db.collection('Database').document('Marketplace')
+
+        # Update the data directly under the "Marketplace" document
+        doc_ref.update({
+            document_id: {
+                "expiry_date": data_dict["expiry_date"],
+                "price": data_dict["price"],
+            }
+        })
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(['POST'])
 def createPrediction(request):
@@ -283,7 +291,7 @@ def createSupplier(request):
 class InventoryList(generics.ListCreateAPIView):
     queryset = Inventory.objects.all()  # Add this line
     serializer_class = InventorySerializer
-    update_model_from_firestore(Inventory, 'Inventory')
+    #update_model_from_firestore(Inventory, 'Inventory')
     # def get(self, request, *args, **kwargs):
     #     # Call the function to update the 'Inventory' model
     #     update_model_from_firestore(Inventory, 'Inventory')
@@ -295,7 +303,7 @@ class InventoryList(generics.ListCreateAPIView):
 class MarketplaceList(generics.ListCreateAPIView):
     queryset = Marketplace.objects.all()
     serializer_class = MarketplaceSerializer
-    # update_model_from_firestore(Marketplace, "Marketplace")
+    #update_model_from_firestore(Marketplace, "Marketplace")
     # def get(self, request, *args, **kwargs):
     #     # Call the function to update the 'Marketplace' model
     #     update_model_from_firestore(Marketplace, "Marketplace")
