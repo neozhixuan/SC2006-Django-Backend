@@ -7,6 +7,7 @@ import sys
 from datetime import datetime, timedelta
 from .serializers import *
 from .models import *
+import random
 
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -201,71 +202,99 @@ def getItemNames(request):
     return Response(serializer.data)
 
 
-# @api_view(['POST'])
-# def createInventory(request):
-#     serializer = InventorySerializer(data=request.data)
+@api_view(['POST'])
+def createInventory(request):
+    serializer = InventorySerializer(data=request.data)
 
-#     if serializer.is_valid():
-#         # Save the data to the Django model
-#         instance = serializer.save()
+    if serializer.is_valid():
+        # Generate a random item_id
+        while True:
+            random_item_id = random.randint(1, 1000)  # Adjust the range as needed
 
-#         # Convert the serializer data to a dictionary
-#         data_dict = serializer.data
+            # Check if the random item_id already exists in the Django model
+            if not Inventory.objects.filter(item_id=random_item_id).exists():
+                # Check if the random item_id already exists in Firestore
+                db = firestore.Client()
+                doc_ref = db.collection('Database').document('Inventory')
+                firestore_data = doc_ref.get().to_dict()
+                if str(random_item_id) not in firestore_data:
+                    break
 
-#         # Initialize Firestore client
-#         db = firestore.Client()
+        # Save the data to the Django model
+        instance = serializer.save(item_id=random_item_id)
 
-#         # Get a sanitized document ID (replace spaces with underscores)
-#         document_id = instance.item_name.replace(" ", "_")
+        # Convert the serializer data to a dictionary
+        data_dict = serializer.data
 
-#         # Get the document reference in Firestore
-#         doc_ref = db.collection('Database').document('Inventory')
+        # Initialize Firestore client
+        db = firestore.Client()
 
-#         # Update the data directly under the "Inventory" document
-#         doc_ref.update({
-#             document_id: {
-#                 "flow_rate": data_dict["flow_rate"],
-#                 "expiry_date": data_dict["expiry_date"],
-#                 "quantity": data_dict["quantity"],
-#                 "entry_date": data_dict["entry_date"]
-#             }
-#         })
+        # Get a sanitized document ID (replace spaces with underscores)
+        document_id = instance.item_name.replace(" ", "_")
 
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # Get the document reference in Firestore
+        doc_ref = db.collection('Database').document('Inventory')
 
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Update the data directly under the "Inventory" document
+        doc_ref.update({
+            str(random_item_id): {
+                "item_name": data_dict["item_name"],
+                "flow_rate": data_dict["flow_rate"],
+                "expiry_date": data_dict["expiry_date"],
+                "quantity": data_dict["quantity"],
+                "entry_date": data_dict["entry_date"]
+            }
+        })
 
-# @api_view(['POST'])
-# def createMarketplace(request):
-#     serializer = MarketplaceSerializer(data=request.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-#     if serializer.is_valid():
-#         # Save the data to the Django model
-#         instance = serializer.save()
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#         # Convert the serializer data to a dictionary
-#         data_dict = serializer.data
+@api_view(['POST'])
+def createMarketplace(request):
+    serializer = MarketplaceSerializer(data=request.data)
 
-#         # Initialize Firestore client
-#         db = firestore.Client()
+    if serializer.is_valid():
+        # Generate a random item_id
+        while True:
+            random_item_id = random.randint(1, 1000)  # Adjust the range as needed
 
-#         # Get a sanitized document ID (replace spaces with underscores)
-#         document_id = instance.item_name.replace(" ", "_")
+            # Check if the random item_id already exists in the Django model
+            if not Inventory.objects.filter(item_id=random_item_id).exists():
+                # Check if the random item_id already exists in Firestore
+                db = firestore.Client()
+                doc_ref = db.collection('Database').document('Marketplace')
+                firestore_data = doc_ref.get().to_dict()
+                if str(random_item_id) not in firestore_data:
+                    break
 
-#         # Get the document reference in Firestore
-#         doc_ref = db.collection('Database').document('Marketplace')
+        # Save the data to the Django model
+        instance = serializer.save(item_id=random_item_id)
 
-#         # Update the data directly under the "Marketplace" document
-#         doc_ref.update({
-#             document_id: {
-#                 "expiry_date": data_dict["expiry_date"],
-#                 "price": data_dict["price"],
-#             }
-#         })
+        # Convert the serializer data to a dictionary
+        data_dict = serializer.data
 
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # Initialize Firestore client
+        db = firestore.Client()
 
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Get a sanitized document ID (replace spaces with underscores)
+        document_id = instance.item_name.replace(" ", "_")
+
+        # Get the document reference in Firestore
+        doc_ref = db.collection('Database').document('Marketplace')
+
+        # Update the data directly under the "Marketplace" document
+        doc_ref.update({
+            str(random_item_id): {
+                "item_name": data_dict["item_name"],
+                "expiry_date": data_dict["expiry_date"],
+                "price": data_dict["price"]
+            }
+        })
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def createPrediction(request):
