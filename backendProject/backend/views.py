@@ -1,9 +1,12 @@
+import firebase_admin 
+from firebase_admin import firestore,credentials,initialize_app
+
+import os
+import sys
+
 from datetime import datetime, timedelta
 from .serializers import *
 from .models import *
-
-import firebase_admin 
-from firebase_admin import firestore
 
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -11,16 +14,53 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render
 
 
 import requests
 
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/..')
+# Set up Firebase credentials
+script_path = os.path.dirname(os.path.abspath(__file__))
+credentials_path = os.path.join(script_path, "credentials.json")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+
+ # Initialize Firebase Admin SDK
+try:
+    firebase_admin
+except NameError:
+    cred = credentials.Certificate(credentials_path)
+    firebase_admin = initialize_app(cred)
+
+# Initialize Firestore client
+db = firestore.Client()
+
+def update_model_from_firestore(model_class, document_name):
+    db = firestore.Client()
+    doc_ref = db.collection('Database').document(document_name)
+    document_data = doc_ref.get().to_dict()
+
+    # Use transaction to ensure atomicity of updates
+    with transaction.atomic():
+        # Iterate through each field in the document and update the model
+        for item_name, item_data in document_data.items():
+            # Check if the item already exists in the model
+            model_item, created = model_class.objects.get_or_create(
+                item_name=item_name)
+
+            # Update the fields based on Firestore data
+            for field_name, field_value in item_data.items():
+                print(f"Field: {field_name}, Value: {field_value}")
+                setattr(model_item, field_name.lower(), field_value)
+
+            # Save the changes
+            model_item.save()
+
 ##########################
 # Suggestions Logic
 ##########################
-
 
 def get_weather_data():
     # Use the data.gov.sg weather API endpoint or your specific API endpoint
@@ -195,26 +235,26 @@ def createInventory(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-#@api_view(['POST'])
-# def createMarketplace(request):
-#     serializer = MarketplaceSerializer(data=request.data)
+@api_view(['POST'])
+def createMarketplace(request):
+    serializer = MarketplaceSerializer(data=request.data)
 
-#     if serializer.is_valid():
-#         # Save the data to the Django model
-#         serializer.save()
+    if serializer.is_valid():
+        # Save the data to the Django model
+        serializer.save()
 
-#         # Convert the serializer data to a dictionary
-#         data_dict = serializer.data
+        # Convert the serializer data to a dictionary
+        data_dict = serializer.data
 
-#         # Get the document reference in Firestore
-#         doc_ref = db.collection('Database').document('Marketplace').collection(data_dict['item_name'])
+        # Get the document reference in Firestore
+        doc_ref = db.collection('Database').document('Marketplace').collection(data_dict['item_name'])
         
-#         # Update or create the document in Firestore
-#         doc_ref.set(data_dict)
+        # Update or create the document in Firestore
+        doc_ref.set(data_dict)
 
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def createPrediction(request):
@@ -243,7 +283,7 @@ def createSupplier(request):
 class InventoryList(generics.ListCreateAPIView):
     queryset = Inventory.objects.all()  # Add this line
     serializer_class = InventorySerializer
-    #update_model_from_firestore(Inventory, 'Inventory')
+    update_model_from_firestore(Inventory, 'Inventory')
     # def get(self, request, *args, **kwargs):
     #     # Call the function to update the 'Inventory' model
     #     update_model_from_firestore(Inventory, 'Inventory')
