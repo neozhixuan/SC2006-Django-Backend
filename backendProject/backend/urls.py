@@ -18,7 +18,7 @@ urlpatterns = [
     # POST Requests
     ##########################
     path('fn/createInventory/', views.createInventory, name='createInventory'),
-    path('fn/createSuggestion/', views.createSuggestion, name='createSuggestions'),
+    path('fn/createMarketplace/', views.createMarketplace, name='createSuggestions'),
     path('fn/createPrediction/', views.createPrediction, name='createPredictions'),
     path('fn/createSupplier/', views.createSupplier, name='createSupplier'),
     path('fn/suggestedMenu/', views.suggest_menu_items, name='suggestedMenu'),
@@ -29,10 +29,6 @@ urlpatterns = [
     path('api/inventory/', views.InventoryList.as_view(), name='inventory-list'),
     path('api/marketplace/', views.MarketplaceList.as_view(),
          name='marketplace-list'),
-    path('api/suggestions/', views.SuggestionsList.as_view(),
-         name='suggestions-list'),
-    path('api/suggestions/<int:pk>/',
-         views.SuggestionsDetail.as_view(), name='suggestions-detail'),
     path('api/predictions/', views.PredictionsList.as_view(),
          name='predictions-list'),
     path('api/predictions/<int:pk>/',

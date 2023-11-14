@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 
-
 class InventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Inventory
@@ -17,12 +16,6 @@ class MarketplaceSerializer(serializers.ModelSerializer):
 class PredictionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Predictions
-        fields = '__all__'
-
-
-class SuggestionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Suggestions
         fields = '__all__'
 
 

@@ -29,5 +29,3 @@ class Predictions(models.Model):
     quantity = models.PositiveIntegerField(default=0)
 
 
-class Suggestions(models.Model):
-    items_data = models.JSONField(default=dict)
