@@ -17,7 +17,7 @@ from rest_framework import status
 
 from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.db.models import Sum
 
 
 import requests
@@ -37,6 +37,7 @@ except NameError:
 
 # Initialize Firestore client
 db = firestore.Client()
+
 
 def update_model_from_firestore(model_class, document_name):
     db = firestore.Client()
@@ -79,54 +80,130 @@ def get_weather_data():
 
 
 def check_ingredient_availability(ingredients, required_ingredients):
-    for ingredient_name, required_quantity in required_ingredients.items():
+    for required_ingredient in required_ingredients:
+        # Extract ingredient name and required quantity
+        ingredient_name = required_ingredient["ingredient"]
+        required_quantity = required_ingredient["quantity"]
+
+        # Check if the required ingredient is available in the list of ingredients
         ingredient_found = False
         for ingredient in ingredients:
             if (
-                ingredient["ingredient_name"] == ingredient_name
+                ingredient["item_name"] == ingredient_name
                 and ingredient["quantity"] >= required_quantity
             ):
                 ingredient_found = True
                 break  # Exit the inner loop once a match is found
+
+        # If the required ingredient is not found, return False
         if not ingredient_found:
-            return False  # Exit the outer loop if a required ingredient is not found
-    return True  # All required ingredients were found
+            return False
+
+    # If all required ingredients were found, return True
+    return True
 
 
 @api_view(['GET'])
 def suggest_menu_items(request):
     menu_items = [
-        {"id": 1, "item_name": "Grilled Chicken Sandwich", "ingredients": {
-            "Chicken Breast": 1, "Mixed Greens": 1, "Tomatoes": 1}},
-        {"id": 2, "item_name": "Vegetarian Wrap", "ingredients": {
-            "Pasta": 1, "Feta Cheese": 1, "Bell Peppers": 1}},
-        {"id": 3, "item_name": "Tomato Basil Pasta", "ingredients": {
-            "Pasta": 1, "Tomatoes": 1, "Feta Cheese": 1}},
-        {"id": 4, "item_name": "Greek Salad", "ingredients": {
-            "Tomatoes": 1, "Feta Cheese": 1, "Mixed Greens": 1}},
-        {"id": 5, "item_name": "Mushroom Risotto", "ingredients": {
-            "Mushrooms": 1, "Pasta": 1, "Feta Cheese": 1}},
-        {"id": 6, "item_name": "Chicken Caesar Salad", "ingredients": {
-            "Chicken Breast": 1, "Romaine Lettuce": 1, "Feta Cheese": 1}},
-        {"id": 7, "item_name": "Caprese Panini", "ingredients": {
-            "Tomatoes": 1, "Feta Cheese": 1, "Chicken Breast": 1}},
-        {"id": 8, "item_name": "Vegetable Stir-Fry",
-         "ingredients": {"Bell Peppers": 1, "Mushrooms": 1, "Chicken Breast": 1}},
-        {"id": 9, "item_name": "Chicken Noodle Soup", "ingredients": {
-            "Chicken Breast": 1, "Pasta": 1, "Bell Peppers": 1}},
-        {"id": 10, "item_name": "Avocado Toast", "ingredients": {
-            "Mixed Greens": 1, "Tomatoes": 1, "Chicken Breast": 1}}
+        {
+            "id": 1,
+            "item_name": "Grilled Chicken Sandwich",
+            "ingredients": [
+                {"ingredient": "Chicken Breast", "quantity": 1},
+                {"ingredient": "Mixed Greens", "quantity": 1},
+                {"ingredient": "Tomatoes", "quantity": 1}
+            ]
+        },
+        {
+            "id": 2,
+            "item_name": "Vegetarian Wrap",
+            "ingredients": [
+                {"ingredient": "Pasta", "quantity": 1},
+                {"ingredient": "Feta Cheese", "quantity": 1},
+                {"ingredient": "Bell Peppers", "quantity": 1}
+            ]
+        },
+        {
+            "id": 3,
+            "item_name": "Tomato Basil Pasta",
+            "ingredients": [
+                {"ingredient": "Pasta", "quantity": 1},
+                {"ingredient": "Tomatoes", "quantity": 1},
+                {"ingredient": "Feta Cheese", "quantity": 1}
+            ]
+        },
+        {
+            "id": 4,
+            "item_name": "Greek Salad",
+            "ingredients": [
+                {"ingredient": "Tomatoes", "quantity": 1},
+                {"ingredient": "Feta Cheese", "quantity": 1},
+                {"ingredient": "Mixed Greens", "quantity": 1}
+            ]
+        },
+        {
+            "id": 5,
+            "item_name": "Mushroom Risotto",
+            "ingredients": [
+                {"ingredient": "Mushrooms", "quantity": 1},
+                {"ingredient": "Pasta", "quantity": 1},
+                {"ingredient": "Feta Cheese", "quantity": 1}
+            ]
+        },
+        {
+            "id": 6,
+            "item_name": "Chicken Caesar Salad",
+            "ingredients": [
+                {"ingredient": "Chicken Breast", "quantity": 1},
+                {"ingredient": "Romaine Lettuce", "quantity": 1},
+                {"ingredient": "Feta Cheese", "quantity": 1}
+            ]
+        },
+        {
+            "id": 7,
+            "item_name": "Caprese Panini",
+            "ingredients": [
+                {"ingredient": "Tomatoes", "quantity": 1},
+                {"ingredient": "Feta Cheese", "quantity": 1},
+                {"ingredient": "Chicken Breast", "quantity": 1}
+            ]
+        },
+        {
+            "id": 8,
+            "item_name": "Vegetable Stir-Fry",
+            "ingredients": [
+                {"ingredient": "Bell Peppers", "quantity": 1},
+                {"ingredient": "Mushrooms", "quantity": 1},
+                {"ingredient": "Chicken Breast", "quantity": 1}
+            ]
+        },
+        {
+            "id": 9,
+            "item_name": "Chicken Noodle Soup",
+            "ingredients": [
+                {"ingredient": "Chicken Breast", "quantity": 1},
+                {"ingredient": "Pasta", "quantity": 1},
+                {"ingredient": "Bell Peppers", "quantity": 1}
+            ]
+        },
+        {
+            "id": 10,
+            "item_name": "Avocado Toast",
+            "ingredients": [
+                {"ingredient": "Mixed Greens", "quantity": 1},
+                {"ingredient": "Tomatoes", "quantity": 1},
+                {"ingredient": "Chicken Breast", "quantity": 1}
+            ]
+        }
     ]
 
-    ingredients = [
-        {"ingredient_name": "Chicken Breast", "quantity": 1},
-        {"ingredient_name": "Tomatoes", "quantity": 1},
-        {"ingredient_name": "Mixed Greens", "quantity": 1},
-        {"ingredient_name": "Mushrooms", "quantity": 1},
-        {"ingredient_name": "Pasta", "quantity": 1},
-        {"ingredient_name": "Feta Cheese", "quantity": 1},
-        {"ingredient_name": "Bell Peppers", "quantity": 1}
-    ]
+    # Retrieve only item_name and quantity fields from the Inventory model
+    inventory_data = Inventory.objects.values('item_name', 'quantity')
+
+    # Convert the QuerySet to a list to make it JSON serializable
+    ingredients = list(inventory_data)
+
     suggested_menu = []
   # Make sure to call the function with parentheses
     weather_data = get_weather_data()
@@ -143,7 +220,6 @@ def suggest_menu_items(request):
             if "thundery showers" in forecast:
                 # Suggest warm and hearty dishes for rainy weather and high humidity
                 for item in menu_items:
-
                     if "soup" in item["item_name"].lower() and check_ingredient_availability(ingredients, item.get("ingredients", {})):
                         item["message"] = "Suggested"
                         suggested_menu.append(item)
@@ -154,7 +230,7 @@ def suggest_menu_items(request):
                         item["message"] = "Suggested"
                         suggested_menu.append(item)
             for item in menu_items:
-                if check_ingredient_availability(ingredients, item.get("ingredients", {})):
+                if check_ingredient_availability(ingredients, item.get("ingredients", {})) and not (item["id"] == suggested_menu[0]["id"]):
                     suggested_menu.append(item)
 
             suggested_menu.append({"forecast": f"{forecast}"})
@@ -182,12 +258,24 @@ def index(request):
 
 @api_view(['GET'])
 def filterForExpiringStock(request):
-    # Perform filtering on the Inventory for low stock
+    # Perform filtering on the Inventory for expiring
     now = datetime.now()
     two_days_from_now = now + timedelta(days=2)
     filtered_data = Inventory.objects.filter(ExpiryDate__lte=two_days_from_now)
     serializer = InventorySerializer(filtered_data, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def filterForLowStock(request):
+    # Aggregate the quantities based on item_name
+    aggregated_items = Inventory.objects.values(
+        'item_name').annotate(total_quantity=Sum('quantity'))
+
+    # Filter out items with total quantity less than 5
+    low_quantity_items = [
+        item for item in aggregated_items if item['total_quantity'] < 5]
+    return Response(low_quantity_items)
 
 
 @api_view(['GET'])
@@ -209,7 +297,8 @@ def createInventory(request):
     if serializer.is_valid():
         # Generate a random item_id
         while True:
-            random_item_id = random.randint(1, 1000)  # Adjust the range as needed
+            random_item_id = random.randint(
+                1, 1000)  # Adjust the range as needed
 
             # Check if the random item_id already exists in the Django model
             if not Inventory.objects.filter(item_id=random_item_id).exists():
@@ -250,6 +339,7 @@ def createInventory(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def createMarketplace(request):
     serializer = MarketplaceSerializer(data=request.data)
@@ -257,7 +347,8 @@ def createMarketplace(request):
     if serializer.is_valid():
         # Generate a random item_id
         while True:
-            random_item_id = random.randint(1, 1000)  # Adjust the range as needed
+            random_item_id = random.randint(
+                1, 1000)  # Adjust the range as needed
 
             # Check if the random item_id already exists in the Django model
             if not Inventory.objects.filter(item_id=random_item_id).exists():
@@ -287,7 +378,7 @@ def createMarketplace(request):
         doc_ref.update({
             str(random_item_id): {
                 "item_name": data_dict["item_name"],
-                "expiry_date": data_dict["expiry_date"],
+                "description": data_dict["description"],
                 "price": data_dict["price"]
             }
         })
@@ -295,6 +386,7 @@ def createMarketplace(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def createPrediction(request):
@@ -323,7 +415,7 @@ def createSupplier(request):
 class InventoryList(generics.ListCreateAPIView):
     queryset = Inventory.objects.all()  # Add this line
     serializer_class = InventorySerializer
-    #update_model_from_firestore(Inventory, 'Inventory')
+    # update_model_from_firestore(Inventory, 'Inventory')
     # def get(self, request, *args, **kwargs):
     #     # Call the function to update the 'Inventory' model
     #     update_model_from_firestore(Inventory, 'Inventory')
@@ -335,7 +427,7 @@ class InventoryList(generics.ListCreateAPIView):
 class MarketplaceList(generics.ListCreateAPIView):
     queryset = Marketplace.objects.all()
     serializer_class = MarketplaceSerializer
-    #update_model_from_firestore(Marketplace, "Marketplace")
+    # update_model_from_firestore(Marketplace, "Marketplace")
     # def get(self, request, *args, **kwargs):
     #     # Call the function to update the 'Marketplace' model
     #     update_model_from_firestore(Marketplace, "Marketplace")
