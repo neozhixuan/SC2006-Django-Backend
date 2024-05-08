@@ -37,4 +37,6 @@ urlpatterns = [
     path('api/predictions/<int:pk>/',
          views.PredictionsDetail.as_view(), name='predictions-detail'),
     path('api/supplier/', views.SupplierList.as_view(), name='supplier-list'),
+    path('api/graph-points/', views.graph_points, name='update_graph_points'),
+
 ]

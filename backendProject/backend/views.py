@@ -103,6 +103,56 @@ def check_ingredient_availability(ingredients, required_ingredients):
     return True
 
 
+@api_view(['POST'])
+def createInventory(request):
+    serializer = InventorySerializer(data=request.data)
+
+    if serializer.is_valid():
+        # Generate a random item_id
+        while True:
+            random_item_id = random.randint(
+                1, 1000)  # Adjust the range as needed
+
+            # Check if the random item_id already exists in the Django model
+            if not Inventory.objects.filter(item_id=random_item_id).exists():
+                # Check if the random item_id already exists in Firestore
+                db = firestore.Client()
+                doc_ref = db.collection('Database').document('Inventory')
+                firestore_data = doc_ref.get().to_dict()
+                if str(random_item_id) not in firestore_data:
+                    break
+
+        # Save the data to the Django model
+        instance = serializer.save(item_id=random_item_id)
+
+        # Convert the serializer data to a dictionary
+        data_dict = serializer.data
+
+        # Initialize Firestore client
+        db = firestore.Client()
+
+        # Get a sanitized document ID (replace spaces with underscores)
+        document_id = instance.item_name.replace(" ", "_")
+
+        # Get the document reference in Firestore
+        doc_ref = db.collection('Database').document('Inventory')
+
+        # Update the data directly under the "Inventory" document
+        doc_ref.update({
+            str(random_item_id): {
+                "item_name": data_dict["item_name"],
+                "flow_rate": data_dict["flow_rate"],
+                "expiry_date": data_dict["expiry_date"],
+                "quantity": data_dict["quantity"],
+                "entry_date": data_dict["entry_date"]
+            }
+        })
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET'])
 def suggest_menu_items(request):
     menu_items = [
@@ -290,54 +340,26 @@ def getItemNames(request):
     return Response(serializer.data)
 
 
-@api_view(['POST'])
-def createInventory(request):
-    serializer = InventorySerializer(data=request.data)
+@api_view(['GET', 'POST'])
+def graph_points(request):
+    if request.method == 'GET':
+        points = GraphPoint.objects.all()
+        serializer = GraphPointSerializer(points, many=True)
+        return Response(serializer.data)
 
-    if serializer.is_valid():
-        # Generate a random item_id
-        while True:
-            random_item_id = random.randint(
-                1, 1000)  # Adjust the range as needed
+    elif request.method == 'POST':
+        # Clear existing graph points
+        GraphPoint.objects.all().delete()
 
-            # Check if the random item_id already exists in the Django model
-            if not Inventory.objects.filter(item_id=random_item_id).exists():
-                # Check if the random item_id already exists in Firestore
-                db = firestore.Client()
-                doc_ref = db.collection('Database').document('Inventory')
-                firestore_data = doc_ref.get().to_dict()
-                if str(random_item_id) not in firestore_data:
-                    break
+        # Create new graph points from the provided data
+        # `many=True` because we expect a list of points
+        serializer = GraphPointSerializer(data=request.data, many=True)
 
-        # Save the data to the Django model
-        instance = serializer.save(item_id=random_item_id)
-
-        # Convert the serializer data to a dictionary
-        data_dict = serializer.data
-
-        # Initialize Firestore client
-        db = firestore.Client()
-
-        # Get a sanitized document ID (replace spaces with underscores)
-        document_id = instance.item_name.replace(" ", "_")
-
-        # Get the document reference in Firestore
-        doc_ref = db.collection('Database').document('Inventory')
-
-        # Update the data directly under the "Inventory" document
-        doc_ref.update({
-            str(random_item_id): {
-                "item_name": data_dict["item_name"],
-                "flow_rate": data_dict["flow_rate"],
-                "expiry_date": data_dict["expiry_date"],
-                "quantity": data_dict["quantity"],
-                "entry_date": data_dict["entry_date"]
-            }
-        })
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])

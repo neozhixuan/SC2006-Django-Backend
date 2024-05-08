@@ -1,5 +1,7 @@
+from .models import GraphPoint
 from rest_framework import serializers
 from .models import *
+
 
 class InventorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,3 +30,9 @@ class SuppliersSerializer(serializers.ModelSerializer):
 class ItemNameSerializer(serializers.Serializer):
     label = serializers.CharField()
     value = serializers.CharField()
+
+
+class GraphPointSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GraphPoint
+        fields = ['x', 'y']

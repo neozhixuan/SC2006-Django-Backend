@@ -31,3 +31,11 @@ class Predictions(models.Model):
     item_id = models.PositiveIntegerField(primary_key=True, default=0)
     item_name = models.CharField(max_length=100, default='default_value')
     quantity = models.PositiveIntegerField(default=0)
+
+
+class GraphPoint(models.Model):
+    x = models.FloatField()
+    y = models.FloatField()
+
+    def __str__(self):
+        return f"Point({self.x}, {self.y})"
