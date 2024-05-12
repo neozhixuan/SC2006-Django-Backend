@@ -1,3 +1,5 @@
+from .serializers import GraphPointSerializer
+from .models import GraphPoint
 import firebase_admin
 from firebase_admin import firestore, credentials, initialize_app
 
@@ -351,10 +353,7 @@ def graph_points(request):
         # Clear existing graph points
         GraphPoint.objects.all().delete()
 
-        # Create new graph points from the provided data
-        # `many=True` because we expect a list of points
         serializer = GraphPointSerializer(data=request.data, many=True)
-
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

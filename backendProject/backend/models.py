@@ -34,8 +34,9 @@ class Predictions(models.Model):
 
 
 class GraphPoint(models.Model):
-    x = models.FloatField()
+    x = models.DateField()  # Changed from FloatField to DateField
     y = models.FloatField()
+    label = models.CharField(max_length=100, default='Default Label')
 
     def __str__(self):
-        return f"Point({self.x}, {self.y})"
+        return f"Point({self.x}, {self.y}, {self.label})"

@@ -35,4 +35,4 @@ class ItemNameSerializer(serializers.Serializer):
 class GraphPointSerializer(serializers.ModelSerializer):
     class Meta:
         model = GraphPoint
-        fields = ['x', 'y']
+        fields = ['x', 'y', 'label']
