@@ -2,9 +2,9 @@
 __pycache__/
 *.pyc
 
-backend/credentials.json/
-../backend/credentials.json
-../backend/credentials.json/
+backendProject/backend/credentials.json
+../backendProject/backend/credentials.json
+../backendProject/backend/credentials.json/
 
 # Database files
 *.sqlite3
