@@ -1,4 +1,8 @@
 # SC2006-Django-Backend
+![image](https://github.com/neozhixuan/SC2006-Django-Backend/assets/79783660/dea62639-38f9-44c5-9767-fa7161ab0316)
+
+## Project Scope
+This is the backend of our Software Engineering project, which utilises Django's own ORM to model the relations between our different entities and serialise the models, to serve a RESTful API. Data is pulled into the backend using a Data Access Object (DAO) before serving it with business layer logic.
 
 ## Initialise Project
 1. `pip install -r requirements.txt`
